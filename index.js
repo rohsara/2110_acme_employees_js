@@ -73,6 +73,7 @@ const employees = [
   
   
   spacer('generateManagementTree')
+  
   //given a list of employees, generate a tree like structure for the employees, starting with the employee who has no manager. Each employee will have a reports property which is an array of the employees who report directly to them.
   const generateManagementTree = (employeeList) => {
     const tree = {...employeeList.find(e => !e.managerId ? e.reports = [] : '')}
@@ -81,16 +82,15 @@ const employees = [
     const reports = (emp, employeeList) => {
       const isTheirManager = employeeList.filter(e => e.managerId === emp.id);
       // isManager (reports to moe): [ {larry}, {curly}, {lucy} ] 
-
+      let report = emp.reports;
       isTheirManager.map( worker => {
         // worker = {larry}, {curly}, {lucy}
 
         const reportings = employeeList.find(e => e.managerId === worker.id);
         
         const underneath = {...worker};
-
-        reportings ? underneath.reports = [reportings] : underneath.reports = [];
-        emp.reports.push(underneath);
+        reportings ? underneath.reports = [] : '';
+        report.push(underneath);
         
         reports(underneath, employeeList);
       })
@@ -163,25 +163,23 @@ const employees = [
   //given a tree of employees, generate a display which displays the hierarchy
   
   const displayManagementTree = (tree) => {
-    console.log(`${tree.name}`)
-    let layer1 = tree.reports;
-    if(layer1){
-      layer1.filter(e => {
-        console.log(`-${e.name}`)
-        let layer2 = e.reports;
-        if(layer2){
-          layer2.filter(ee => {
-            console.log(`--${ee.name}`);
-            let layer3 = ee.reports;
-            if(layer3){
-              layer3.filter(eee => {
-                console.log(`---${eee.name}`);
-              })
-            }
-          })
-        }
-      });
+    console.log(`${tree.name}`) // moe
+    let layer = 1;
+
+    const display = (tree) => {
+      const dash = new Array(layer).fill('-').join('');
+      if(tree.reports){
+        let current = tree.reports;
+        // current: larry, curly, lucy
+        current.filter( e => {
+          layer++;
+          console.log(`${dash}${e.name}`); // larry
+          
+          e.reports ? display(e) : '';
+        })
+      }
     }
+    display(tree);
   }
 
   displayManagementTree(generateManagementTree(employees));
